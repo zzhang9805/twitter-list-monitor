@@ -1,0 +1,109 @@
+# Twitter List Monitor Configuration
+# ================================
+# This file contains all configuration for the Twitter List Monitor
+
+# ============================================
+# Twitter API Configuration
+# ============================================
+twitter:
+  # Your TwitterAPI.io API Key
+  # Get it from: https://twitterapi.io/dashboard
+  api_key: "YOUR_TWITTER_API_KEY"
+  
+  # Your Twitter API Bearer Token (X Premium or higher required for List API)
+  # Get it from: https://developer.twitter.com/
+  bearer_token: "YOUR_TWITTER_BEARER_TOKEN_HERE"
+  
+  # List IDs to monitor
+  # You can get list IDs from the Twitter URL when viewing a list
+  # Example: https://twitter.com/i/lists/1234567890 -> ID is 1234567890
+  list_ids:
+    - "2028406588600373693"
+    # Add more list IDs as needed
+
+# ============================================
+# OpenRouter AI Configuration (for tweet analysis)
+# ============================================
+openrouter:
+  # Your OpenRouter API Key
+  # Get it from: https://openrouter.ai/
+  api_key: "YOUR_OPENROUTER_API_KEY_HERE"
+  
+  # Model to use for analysis
+  # Options: openai/gpt-4, anthropic/claude-3, google/gemini-pro, etc.
+  model: "moonshotai/kimi-k2.5"
+  
+  # Maximum tokens for AI response
+  max_tokens: 1000
+  
+  # Temperature for AI responses (0-2, higher = more creative)
+  temperature: 0.7
+
+# ============================================
+# Output Settings
+# ============================================
+output:
+  # Directory to save results
+  # This can be overridden via the OUTPUT_DIRECTORY environment variable
+  # Example: Set OUTPUT_DIRECTORY=/custom/path in .env file
+  directory: "./info_stream"
+  
+  # Maximum tweets to store per user (prevents memory issues)
+  max_tweets_per_user: 100
+  
+  # Save raw API responses (useful for debugging)
+  save_raw_data: false
+  
+  # Output format: json, csv, or both
+  format: "json"
+  
+  # Include retweets and quotes in output
+  include_retweets: true
+  include_quotes: true
+
+# ============================================
+# Rate Limiting Settings
+# ============================================
+rate_limit:
+  # API delay in seconds between requests
+  # Free tier: ~15 requests per 15 minutes = 1 request per 60 seconds
+  # Paid tier: QPS=20 -> 0.1 seconds delay
+  api_delay_seconds: 0.1
+  
+  # Maximum retries for failed requests
+  max_retries: 3
+  
+  # Retry delay in seconds
+  retry_delay_seconds: 5
+  
+  # Enable exponential backoff for retries
+  exponential_backoff: true
+
+# ============================================
+# Monitoring Settings
+# ============================================
+monitoring:
+  # How often to check for new tweets (in seconds)
+  check_interval_seconds: 60
+  
+  # Maximum tweets to fetch per list per check
+  max_tweets_per_fetch: 100
+  
+  # Filter: Only fetch tweets from last N hours
+  hours_lookback: 24
+  
+  # Enable real-time-like monitoring (vs batch)
+  real_time_mode: true
+
+# ============================================
+# Logging Settings
+# ============================================
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+  
+  # Log file path (empty = only console)
+  log_file: "./logs/twitter_monitor.log"
+  
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
