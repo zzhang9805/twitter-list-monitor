@@ -1,0 +1,96 @@
+# Twitter List Monitor Configuration
+# ================================
+# Copy this file to config.yaml and fill in your values
+
+# ============================================
+# Twitter API Configuration
+# ============================================
+twitter:
+  api_key: "YOUR_TWITTER_API_KEY"
+  bearer_token: "YOUR_TWITTER_BEARER_TOKEN"
+  
+  list_ids:
+    - "YOUR_LIST_ID_1"
+    - "YOUR_LIST_ID_2"
+
+# ============================================
+# Telegram Notification Settings
+# ============================================
+telegram:
+  enabled: true
+  target_user: "YOUR_TELEGRAM_USER_ID"
+  send_full_summary: true
+  max_message_length: 4000
+
+# ============================================
+# OpenRouter AI Configuration (for tweet analysis)
+# ============================================
+openrouter:
+  api_key: "YOUR_OPENROUTER_API_KEY"
+  model: "moonshotai/kimi-k2.5"
+  max_tokens: 1000
+  temperature: 0.7
+  
+  prompt_template: |
+    你是一位专注于社交媒体趋势和洞察力的专家分析师。
+    你的任务是对Twitter列表中的推文进行分析，并提供简洁、有见地的摘要。
+
+    ## 背景
+    你正在分析来自Twitter列表的推文："{list_name}"
+
+    ## 需要分析的推文
+    {tweets}
+
+    ## 分析要求
+    请提供一个包含以下内容的摘要：
+
+    1. **关键主题**：正在讨论的主要话题是什么？
+    2. **热门讨论**：哪些推文获得了最多的互动？
+    3. **重要见解**：分享了什么有趣的见解、新闻或观点？
+    4. **情绪概述**：整体情绪是正面、负面还是中性？
+    5. **行动项或更新**：是否有重要的公告、行动号召或发展？
+
+    ## 输出格式
+    - 保持摘要简洁但信息丰富（300-500字）
+    - 使用项目符号提高清晰度
+    - 聚焦最相关和最有影响力的内容
+    - 突出任何新兴趋势或热点话题
+
+    请现在提供你的摘要：
+
+# ============================================
+# Output Settings
+# ============================================
+output:
+  directory: "./info_stream"
+  max_tweets_per_user: 100
+  save_raw_data: false
+  format: "json"
+  include_retweets: true
+  include_quotes: true
+
+# ============================================
+# Rate Limiting Settings
+# ============================================
+rate_limit:
+  api_delay_seconds: 0.1
+  max_retries: 3
+  retry_delay_seconds: 5
+  exponential_backoff: true
+
+# ============================================
+# Monitoring Settings
+# ============================================
+monitoring:
+  check_interval_seconds: 60
+  max_tweets_per_fetch: 100
+  hours_lookback: 24
+  real_time_mode: true
+
+# ============================================
+# Logging Settings
+# ============================================
+logging:
+  level: "INFO"
+  log_file: "./logs/twitter_monitor.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

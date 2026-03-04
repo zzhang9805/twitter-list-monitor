@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import logging
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -429,6 +430,45 @@ def build_tweets_by_list(lists_data: List[Dict[str, Any]]) -> Dict[str, Dict[str
     return tweets_by_list
 
 
+def send_to_telegram_via_openclaw(
+    markdown_content: str,
+    target_user: str,
+    logger: logging.Logger
+) -> bool:
+    """Send markdown content to Telegram via OpenClaw CLI."""
+    logger.info(f"Sending markdown to Telegram user: {target_user}")
+    
+    try:
+        cmd = [
+            "openclaw",
+            "message",
+            "send",
+            "--channel", "telegram",
+            "--target", target_user,
+            "--message", markdown_content
+        ]
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        
+        if result.returncode == 0:
+            logger.info("Message sent successfully")
+            return True
+        else:
+            logger.error(f"Failed to send: {result.stderr}")
+            return False
+    except subprocess.TimeoutExpired:
+        logger.error("Message send timed out")
+        return False
+    except Exception as e:
+        logger.error(f"Error sending message: {e}")
+        return False
+
+
 def main():
     """Main entry point for Twitter List Monitor."""
     args = parse_args()
@@ -454,7 +494,7 @@ def main():
         print(f"Error loading config: {e}")
         sys.exit(1)
     
-    log_file = config.logging.get("log_file") if config.logging else None
+    log_file = config.get("logging", {}).get("log_file")
     logger = setup_logging(verbose=args.verbose, log_file=log_file)
     
     logger.info("=" * 60)
@@ -472,6 +512,14 @@ def main():
     
     openrouter_api_key = config.openrouter.get("api_key")
     model = config.openrouter.get("model", "moonshotai/kimi-k2.5")
+    prompt_template = config.openrouter.get("prompt_template")
+    
+    # Telegram config
+    model = config.openrouter.get("model", "moonshotai/kimi-k2.5")
+    
+    # Telegram config
+    telegram_enabled = config.telegram.get("enabled", False)
+    telegram_target = config.telegram.get("target_user", "")
     
     logger.info(f"Configuration:")
     logger.info(f"  - List IDs: {list_ids}")
@@ -494,7 +542,7 @@ def main():
     logger.info("\nInitializing API clients...")
     
     twitter_api = TwitterAPI(api_key, delay_seconds=api_delay)
-    openrouter_client = OpenRouterClient(openrouter_api_key, model=model)
+    openrouter_client = OpenRouterClient(openrouter_api_key, model=model, prompt_template=prompt_template)
     
     logger.info("Clients initialized")
     
@@ -559,6 +607,21 @@ def main():
     )
     
     logger.info(f"\n✓ Output saved to: {output_path}")
+    
+    # Send AI summary to Telegram via OpenClaw if enabled
+    if telegram_enabled and telegram_target:
+        logger.info("\n" + "=" * 60)
+        logger.info("Sending AI summary to Telegram via OpenClaw...")
+        logger.info("=" * 60)
+        send_success = send_to_telegram_via_openclaw(
+            markdown_content=full_ai_summary,
+            target_user=telegram_target,
+            logger=logger
+        )
+        if send_success:
+            logger.info("✓ Telegram message sent successfully")
+        else:
+            logger.warning("✗ Failed to send message to Telegram")
     
     total_tweets = sum(len(ld["all_tweets"]) for ld in lists_data)
     total_members = sum(len(ld["members"]) for ld in lists_data)

@@ -32,3 +32,10 @@ logs/
 
 # Twitter Monitor
 twitter_monitor_fixed.py
+
+# User config with private data
+config.yaml
+
+# Output directory
+info_stream/
+twitter_monitor_fixed.py

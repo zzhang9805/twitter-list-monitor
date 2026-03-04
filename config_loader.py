@@ -179,6 +179,12 @@ class Config:
     def logging(self) -> Dict[str, Any]:
         return self._config.get("logging", {})
     
+    @property
+    def telegram(self) -> Dict[str, Any]:
+        return self._config.get("telegram", {})
+    def logging(self) -> Dict[str, Any]:
+        return self._config.get("logging", {})
+    
     def to_dict(self) -> Dict[str, Any]:
         """Return config as dictionary."""
         return self._config.copy()
